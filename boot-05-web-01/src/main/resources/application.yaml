@@ -1,0 +1,12 @@
+spring:
+  #  mvc:
+#    static-path-pattern: /res/**
+  web:
+    resources:
+      add-mappings: true #禁用所有资源规则
+#      static-locations:
+#        [classpath:/haha/]
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true

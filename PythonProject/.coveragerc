@@ -1,0 +1,3 @@
+[run]
+source = pythonproject
+omit = pythonproject/test*

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sang.mapper.UserMapper">
+    <!--    配置映射-->
+    <resultMap id="BaseResultMap" type="org.sang.bean.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nickname" property="nickname"/>
+        <result column="password" property="password"/>
+        <result column="enabled" property="enabled"/>
+        <result column="email" property="email"/>
+        <result column="userface" property="userface"/>
+        <result column="regTime" property="regTime"/>
+        <collection property="roles" ofType="org.sang.bean.Role">
+            <id column="rid" property="id"/>
+            <result column="rname" property="name"/>
+        </collection>
+    </resultMap>
+
+    <!--    查询用户名-->
+    <select id="loadUserByUsername" resultType="org.sang.bean.User">
+        SELECT *
+        FROM user
+        WHERE username = #{username}
+    </select>
+
+    <!--    注册(插入)一个用户-->
+    <insert id="reg" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user
+        set username=#{username},
+            password=#{password},
+            nickname=#{nickname}
+    </insert>
+
+    <!--    更新用户邮箱-->
+    <update id="updateUserEmail">
+        UPDATE user
+        set email = #{email}
+        WHERE id = #{id}
+    </update>
+    <!--    查询所有不是超级管理员的用户信息,并且按升序排序,每页不超过20个-->
+    <select id="getUserByNickname" resultType="BaseResultMap">
+        SELECT u.*, r.id AS rid, r.name AS rname
+        FROM user u,
+        roles r,
+        roles_user ru
+        WHERE ru.rid = r.id
+        AND u.id = ru.uid
+        AND u.id NOT IN (
+        SELECT u.id
+        FROM user u,
+        roles_user ru
+        WHERE u.id = ru.uid
+        AND ru.rid = 1
+        )
+        <choose>
+            <when test="nickname != null and nickname != ''">
+                AND u.nickname like concat('%',#{nickname},'%') ORDER BY u.id
+            </when>
+            <otherwise>
+                ORDER BY u.id limit 20
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <!--    查询用户所有信息-->
+    <select id="getUserById" resultType="org.sang.bean.User">
+        SELECT u.*, r.id AS rid, r.name AS rname
+        FROM user u,
+             roles r,
+             roles_user ru
+        WHERE ru.uid = u.id
+          AND ru.rid = r.id
+          AND u.id = #{id}
+    </select>
+
+    <!--    查询 role 表所有信息-->
+    <select id="getAllRole" resultType="org.sang.bean.Role">
+        SELECT *
+        FROM roles
+    </select>
+
+    <!--    更新用户状态-->
+    <update id="updateUserEnabled">
+        UPDATE user
+        set enabled = #{enabled}
+        where id = #{id}
+    </update>
+
+    <!--    删除一个用户-->
+    <delete id="deleteUserById">
+        DELETE
+        FROM user
+        WHERE id = #{id}
+    </delete>
+
+    <!--    删除一个用户角色-->
+    <delete id="deleteUserRolesByUid">
+        DELETE
+        FROM roles_user
+        WHERE uid = #{id}
+    </delete>
+
+    <!--    批量插入用户角色-->
+    <insert id="setUserRoles">
+        INSERT INTO roles_user(rid,uid) VALUES
+        <foreach collection="rids" separator="," item="rid">
+            (#{rid},#{id})
+        </foreach>
+    </insert>
+</mapper>

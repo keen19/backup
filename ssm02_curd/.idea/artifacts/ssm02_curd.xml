@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="ssm02_curd">
+    <output-path>$PROJECT_DIR$/out/artifacts/ssm02_curd</output-path>
+    <root id="root">
+      <element id="archive" name="ssm02_curd.jar">
+        <element id="module-output" name="ssm02_curd" />
+      </element>
+    </root>
+  </artifact>
+</component>
